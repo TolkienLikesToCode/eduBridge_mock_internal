@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schuldaten Manager</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <nav class="sidebar">
+      <div class="sidebar-brand">Schuldaten</div>
+
+      <div class="nav-section-label">Import</div>
+      <button class="nav-item active" data-tab="org">Schule / Rolle</button>
+      <button class="nav-item" data-tab="klassen">Klassen / Zuordnung</button>
+      <button class="nav-item" data-tab="import">CSV Import / Export</button>
+
+      <div class="nav-section-label">Konfiguration</div>
+      <button class="nav-item" data-tab="roles">Rollen</button>
+      <button class="nav-item" data-tab="flags">Flags</button>
+      <button class="nav-item" data-tab="applications">Anwendungen</button>
+      <button class="nav-item" data-tab="schools">Schulen</button>
+
+      <div class="sidebar-footer">
+        <button class="nav-item" data-tab="settings">Einstellungen</button>
+      </div>
+    </nav>
+
+    <main class="content">
+
+      <section class="tab-panel active" id="tab-org">
+        <header class="toolbar toolbar-stacked">
+          <div class="toolbar-row">
+            <button class="btn primary" id="btn-import">CSV importieren</button>
+            <button class="btn" id="btn-validate" disabled>Validieren</button>
+            <button class="btn" id="btn-export" disabled>Exportieren</button>
+            <span class="toolbar-spacer"></span>
+            <span class="status-chip status-warn" id="chip-warn">0 Warnungen</span>
+            <span class="status-chip status-error" id="chip-error">0 Fehler</span>
+            <span class="status-chip" id="chip-generated">0 generiert</span>
+          </div>
+
+          <div class="toolbar-row filters">
+            <input type="search" id="global-search" class="search-input"
+                   placeholder="sId:10001 | name:Müller | school:Nord | role:lehrer | role:teacher | flag:can_login | app:M365" />
+
+            <div class="dd" id="dd-year">
+              <button type="button" class="dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dd-label">Jahr</span>
+                <span class="dd-value">Alle</span>
+                <span class="dd-caret"></span>
+              </button>
+              <div class="dd-panel" role="listbox" aria-multiselectable="true" hidden>
+                <div class="dd-panel-head">
+                  <span>Jahr</span>
+                  <button type="button" class="dd-clear">Alle abwählen</button>
+                </div>
+                <div class="dd-options"></div>
+              </div>
+            </div>
+
+            <div class="dd" id="dd-school">
+              <button type="button" class="dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dd-label">Schule</span>
+                <span class="dd-value">Alle</span>
+                <span class="dd-caret"></span>
+              </button>
+              <div class="dd-panel" role="listbox" aria-multiselectable="true" hidden>
+                <div class="dd-panel-head">
+                  <span>Schule</span>
+                  <button type="button" class="dd-clear">Alle abwählen</button>
+                </div>
+                <div class="dd-options"></div>
+              </div>
+            </div>
+
+            <div class="dd" id="dd-role">
+              <button type="button" class="dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dd-label">Rolle</span>
+                <span class="dd-value">Alle</span>
+                <span class="dd-caret"></span>
+              </button>
+              <div class="dd-panel" role="listbox" aria-multiselectable="true" hidden>
+                <div class="dd-panel-head">
+                  <span>Rolle</span>
+                  <button type="button" class="dd-clear">Alle abwählen</button>
+                </div>
+                <div class="dd-options">
+                  <label class="dd-option"><input type="checkbox" value="schueler" /><span>Schüler</span></label>
+                  <label class="dd-option"><input type="checkbox" value="lehrer" /><span>Lehrer</span></label>
+                  <label class="dd-option"><input type="checkbox" value="sonstige" /><span>Sonstige</span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="dd" id="dd-flag">
+              <button type="button" class="dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dd-label">Flags</span>
+                <span class="dd-value">Alle</span>
+                <span class="dd-caret"></span>
+              </button>
+              <div class="dd-panel" role="listbox" aria-multiselectable="true" hidden>
+                <div class="dd-panel-head">
+                  <span>Flags</span>
+                  <button type="button" class="dd-clear">Alle abwählen</button>
+                </div>
+                <div class="dd-options">
+                  <label class="dd-option"><input type="checkbox" value="can_login" /><span>Anmeldung erlaubt</span></label>
+                  <label class="dd-option"><input type="checkbox" value="needs_password_reset" /><span>Passwort-Reset</span></label>
+                  <label class="dd-option"><input type="checkbox" value="external" /><span>Externer Zugang</span></label>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn small" id="btn-clear-filters">Alle Filter zurücksetzen</button>
+          </div>
+        </header>
+
+        <div class="table-area" id="table-area-org">
+          <div class="pagination-bar pagination-top" id="pagination-top-org">
+            <label class="page-size">
+              <span class="filter-label">Einträge pro Seite</span>
+              <select class="page-size-select" data-table="org">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+              </select>
+            </label>
+            <button class="btn small page-prev" data-table="org" disabled>Zurück</button>
+            <span class="page-info">Seite 1 von 1 · 0 Einträge</span>
+            <button class="btn small page-next" data-table="org" disabled>Weiter</button>
+          </div>
+
+          <div class="table-wrap" id="table-wrap-org">
+            <div class="empty-state" id="empty-state-org">
+              <p>Noch keine CSV geladen.</p>
+              <button class="btn primary" onclick="document.getElementById('btn-import').click()">
+                Datei auswählen
+              </button>
+            </div>
+
+            <table class="data-table grouped" id="table-org" hidden>
+              <thead>
+                <tr>
+                  <th class="col-meta">Gruppe</th>
+                  <th class="col-meta-2">LKID</th>
+                  <th>Geburtsdatum</th>
+                  <th>Vorname</th>
+                  <th>Nachname</th>
+                  <th>Rolle</th>
+                  <th>Benutzername</th>
+                  <th>Apple ID</th>
+                  <th>Passwort</th>
+                  <th>Anwendungen</th>
+                  <th>Flags</th>
+                  <th class="col-issues">Hinweise</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="pagination-bar pagination-bottom" id="pagination-bottom-org">
+            <label class="page-size">
+              <span class="filter-label">Einträge pro Seite</span>
+              <select class="page-size-select" data-table="org">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+              </select>
+            </label>
+            <button class="btn small page-prev" data-table="org" disabled>Zurück</button>
+            <span class="page-info">Seite 1 von 1 · 0 Einträge</span>
+            <button class="btn small page-next" data-table="org" disabled>Weiter</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-klassen">
+        <header class="toolbar toolbar-stacked">
+          <div class="toolbar-row">
+            <h2>Klassen und Zuordnung</h2>
+            <span class="toolbar-spacer"></span>
+            <span class="status-chip status-warn" id="chip-warn-2">0 Warnungen</span>
+            <span class="status-chip status-error" id="chip-error-2">0 Fehler</span>
+          </div>
+        </header>
+
+        <div class="table-area" id="table-area-klassen">
+          <div class="pagination-bar pagination-top" id="pagination-top-klassen">
+            <label class="page-size">
+              <span class="filter-label">Einträge pro Seite</span>
+              <select class="page-size-select" data-table="klassen">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+              </select>
+            </label>
+            <button class="btn small page-prev" data-table="klassen" disabled>Zurück</button>
+            <span class="page-info">Seite 1 von 1 · 0 Einträge</span>
+            <button class="btn small page-next" data-table="klassen" disabled>Weiter</button>
+          </div>
+
+          <div class="table-wrap" id="table-wrap-klassen">
+            <div class="empty-state" id="empty-state-klassen">
+              <p>Noch keine CSV geladen.</p>
+            </div>
+
+            <table class="data-table grouped" id="table-klassen" hidden>
+              <thead>
+                <tr>
+                  <th class="col-meta">Gruppe</th>
+                  <th class="col-meta-2">LKID</th>
+                  <th>Geburtsdatum</th>
+                  <th>Vorname</th>
+                  <th>Nachname</th>
+                  <th>Rolle</th>
+                  <th>Benutzername</th>
+                  <th>Apple ID</th>
+                  <th>Passwort</th>
+                  <th>Anwendungen</th>
+                  <th>Flags</th>
+                  <th class="col-issues">Hinweise</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="pagination-bar pagination-bottom" id="pagination-bottom-klassen">
+            <label class="page-size">
+              <span class="filter-label">Einträge pro Seite</span>
+              <select class="page-size-select" data-table="klassen">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+              </select>
+            </label>
+            <button class="btn small page-prev" data-table="klassen" disabled>Zurück</button>
+            <span class="page-info">Seite 1 von 1 · 0 Einträge</span>
+            <button class="btn small page-next" data-table="klassen" disabled>Weiter</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-import">
+        <div class="import-screen">
+          <h2>CSV Import / Export</h2>
+
+          <div class="drop-zone" id="drop-zone">
+            CSV hier ablegen oder klicken, um eine Datei auszuwählen.
+            <input type="file" id="csv-input" accept=".csv,text/csv" hidden />
+          </div>
+
+          <div class="import-card" id="mapping-card" hidden>
+            <h3>Spaltenzuordnung</h3>
+            <div class="import-toolbar">
+              <label class="check-row">
+                <input type="checkbox" id="csv-has-header" checked />
+                <span>Erste Zeile ist Kopfzeile</span>
+              </label>
+              <span class="toolbar-spacer"></span>
+              <button type="button" class="btn small" id="btn-auto-map">Automatisch zuordnen</button>
+              <button type="button" class="btn small" id="btn-clear-map">Alle Zuordnungen löschen</button>
+            </div>
+            <p class="muted" style="font-size:.82rem;margin-top:-4px;">
+              Trennzeichen (Komma, Semikolon, Tab) wird automatisch erkannt.
+              Mehrere Werte innerhalb einer Zelle werden mit <strong>Komma</strong> getrennt
+              (z.&nbsp;B. <em>M365, Schulportal</em> oder <em>Schüler, Lehrer</em>).
+              Klassenbuchstabe wird automatisch aus der Klassenstufe abgeleitet, wenn keine
+              eigene Spalte dafür zugeordnet ist.
+            </p>
+            <table class="mapping-table">
+              <thead><tr><th>CSV-Spalte</th><th>Zielfeld</th></tr></thead>
+              <tbody id="mapping-body"></tbody>
+            </table>
+          </div>
+
+          <div class="import-card" id="role-mapping-card" hidden>
+            <h3>Rollenwerte → Programmrolle</h3>
+            <p class="muted" style="font-size:.82rem;margin-top:-4px;">
+              Für jeden in der CSV vorkommenden Rollenwert legen Sie fest, welcher
+              Programmrolle er zugeordnet wird. Automatisch erkannte Werte sind mit
+              <span class="detected-badge auto">erkannt</span> markiert.
+              Mehrere CSV-Werte dürfen dieselbe Programmrolle erhalten.
+            </p>
+            <table class="mapping-table">
+              <thead><tr><th>Wert in CSV</th><th>Programmrolle</th></tr></thead>
+              <tbody id="role-mapping-body"></tbody>
+            </table>
+          </div>
+
+          <div class="import-card" id="export-card" hidden>
+            <h3>Export-Optionen</h3>
+            <div class="radio-row">
+              <label><input type="radio" name="export-fmt" value="csv" checked /> CSV</label>
+              <label><input type="radio" name="export-fmt" value="json" /> JSON</label>
+            </div>
+            <div class="radio-row">
+              <label><input type="checkbox" id="export-all" checked /> Alle Zeilen (ungefiltert)</label>
+              <label><input type="checkbox" id="export-include-generated" checked /> Generierte Felder einschließen</label>
+            </div>
+          </div>
+
+          <div class="import-card" id="preview-card" hidden>
+            <h3>Vorschau des Imports</h3>
+            <p class="muted" style="font-size:.78rem;margin-top:-6px;">
+              Es werden ausschließlich die Zielfelder des Programms angezeigt. Fehlende
+              Pflichtfelder, unbekannte Schulen sowie doppelte Einträge (Name + Geburtsdatum
+              oder LKID) werden in den Hinweisen markiert.
+            </p>
+            <div class="pagination-bar pagination-top" id="import-pagination-top">
+              <span class="page-info" id="import-page-info">Seite 1 von 1 · 0 Einträge</span>
+              <button class="btn small" id="import-page-prev" disabled>Zurück</button>
+              <button class="btn small" id="import-page-next" disabled>Weiter</button>
+            </div>
+            <div class="table-wrap import-table-wrap">
+              <table class="data-table grouped" id="table-import">
+                <thead>
+                  <tr>
+                    <th class="col-meta">Gruppe</th>
+                    <th class="col-meta-2">LKID</th>
+                    <th>Geburtsdatum</th>
+                    <th>Vorname</th>
+                    <th>Nachname</th>
+                    <th>Rolle</th>
+                    <th>Benutzername</th>
+                    <th>Apple ID</th>
+                    <th>Passwort</th>
+                    <th>Anwendungen</th>
+                    <th>Flags</th>
+                    <th class="col-issues">Hinweise</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="import-actions" id="import-actions" hidden>
+            <button class="btn" id="btn-import-cancel">Abbrechen</button>
+            <button class="btn primary" id="btn-import-confirm">Importieren</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-roles">
+        <header class="toolbar">
+          <h2>Rollen</h2>
+          <button class="btn primary" id="btn-add-role">Rolle hinzufügen</button>
+        </header>
+        <div class="card-grid">
+          <article class="card">
+            <header><h3>Schüler</h3><span class="badge">schueler</span></header>
+            <p>Standardrolle für Schülerinnen und Schüler.</p>
+            <p class="muted" style="font-size:.72rem;">Akzeptierte Varianten u.&nbsp;a.:
+              Schüler, Schülerin, schueler, Student, Pupil, Lernende.</p>
+            <footer>
+              <button class="btn small">Bearbeiten</button>
+              <button class="btn small danger">Löschen</button>
+            </footer>
+          </article>
+          <article class="card">
+            <header><h3>Lehrer</h3><span class="badge">lehrer</span></header>
+            <p>Lehrkräfte und pädagogisches Personal.</p>
+            <p class="muted" style="font-size:.72rem;">Akzeptierte Varianten u.&nbsp;a.:
+              Lehrer, Lehrerin, Teacher, Lehrkraft, Tutor.</p>
+            <footer>
+              <button class="btn small">Bearbeiten</button>
+              <button class="btn small danger">Löschen</button>
+            </footer>
+          </article>
+          <article class="card">
+            <header><h3>Sonstige</h3><span class="badge">sonstige</span></header>
+            <p>Alle übrigen Personen.</p>
+            <p class="muted" style="font-size:.72rem;">Akzeptierte Varianten u.&nbsp;a.:
+              Sonstige, Other, Staff, Verwaltung, Referendar, Praktikant, Extern.</p>
+            <footer>
+              <button class="btn small">Bearbeiten</button>
+              <button class="btn small danger">Löschen</button>
+            </footer>
+          </article>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-flags">
+        <header class="toolbar">
+          <h2>Flags</h2>
+          <button class="btn primary" id="btn-add-flag">Flag hinzufügen</button>
+        </header>
+        <div class="table-wrap">
+          <table class="data-table compact">
+            <thead>
+              <tr><th>Schlüssel</th><th>Bezeichnung</th><th>Beschreibung</th><th>Berechtigungen</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>can_login</code></td><td>Anmeldung erlaubt</td><td>Darf sich anmelden</td><td>login</td><td><button class="btn small">Bearbeiten</button></td></tr>
+              <tr><td><code>needs_password_reset</code></td><td>Passwort-Reset</td><td>Passwort zurücksetzen</td><td>reset</td><td><button class="btn small">Bearbeiten</button></td></tr>
+              <tr><td><code>external</code></td><td>Externer Zugang</td><td>Externer Zugang</td><td>login, vpn</td><td><button class="btn small">Bearbeiten</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-applications">
+        <header class="toolbar">
+          <h2>Anwendungen</h2>
+          <button class="btn primary" id="btn-add-app">Anwendung hinzufügen</button>
+        </header>
+        <div class="card-grid">
+          <article class="card">
+            <header><h3>M365</h3><span class="badge">app</span></header>
+            <ul class="req-list">
+              <li>Benötigt: <strong>legal_name</strong></li>
+              <li>Benötigt: <strong>username</strong></li>
+              <li>Benötigt: <strong>role_as_data</strong></li>
+              <li>Benötigt: <strong>role_as_id</strong></li>
+            </ul>
+            <footer><button class="btn small">Bearbeiten</button></footer>
+          </article>
+          <article class="card">
+            <header><h3>Schulportal</h3><span class="badge">app</span></header>
+            <ul class="req-list">
+              <li>Benötigt: <strong>username</strong></li>
+              <li>Benötigt: <strong>email</strong></li>
+              <li>Benötigt: <strong>role_as_data</strong></li>
+            </ul>
+            <footer><button class="btn small">Bearbeiten</button></footer>
+          </article>
+          <article class="card">
+            <header><h3>MDM</h3><span class="badge">app</span></header>
+            <ul class="req-list">
+              <li>Benötigt: <strong>username</strong></li>
+              <li>Benötigt: <strong>device_enrollment</strong></li>
+              <li>Benötigt: <strong>role_as_id</strong></li>
+            </ul>
+            <footer><button class="btn small">Bearbeiten</button></footer>
+          </article>
+          <article class="card">
+            <header><h3>Nextcloud</h3><span class="badge">app</span></header>
+            <ul class="req-list">
+              <li>Benötigt: <strong>username</strong></li>
+              <li>Benötigt: <strong>email</strong></li>
+              <li>Benötigt: <strong>role_as_data</strong></li>
+            </ul>
+            <footer><button class="btn small">Bearbeiten</button></footer>
+          </article>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-schools">
+        <header class="toolbar">
+          <h2>Schulen</h2>
+          <button class="btn primary" id="btn-add-school">Schule hinzufügen</button>
+        </header>
+        <div class="table-wrap">
+          <table class="data-table compact">
+            <thead>
+              <tr><th>Schul-ID</th><th>Name</th><th>Typ</th><th>Landkreis</th><th></th></tr>
+            </thead>
+            <tbody id="schools-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-settings">
+        <header class="toolbar">
+          <h2>Einstellungen</h2>
+        </header>
+        <div class="settings-wrap">
+          <p>Regelwerk, Formate und Zuordnungen werden hier konfiguriert.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="context-menu" id="context-menu" hidden>
+    <button data-action="copy">Zelle kopieren</button>
+    <button data-action="filter">Nach Wert filtern</button>
+    <button data-action="sort-asc">Aufsteigend sortieren</button>
+    <button data-action="sort-desc">Absteigend sortieren</button>
+    <hr />
+    <button data-action="inspect">Zeile inspizieren</button>
+    <button data-action="copy-lkid">LKID kopieren</button>
+  </div>
+
+  <dialog class="issues-dialog" id="issues-dialog">
+    <div class="dlg-head">
+      <h3>Hinweise</h3>
+      <button type="button" class="btn small"
+              onclick="document.getElementById('issues-dialog').close()">Schließen</button>
+    </div>
+    <div class="dlg-body"></div>
+  </dialog>
+
+  <div class="toast-host" id="toast-host"></div>
+
+  <script src="assets/mock-data.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/context-menu.js"></script>
+  <script>
+    document.querySelectorAll('.nav-item[data-tab]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    /* ---------------- Checkbox dropdowns ---------------- */
+    var DROPDOWNS = [];
+    function createDropdown(rootEl, opts) {
+      var trigger = rootEl.querySelector('.dd-trigger');
+      var panel = rootEl.querySelector('.dd-panel');
+      var valueSpan = rootEl.querySelector('.dd-value');
+      var optionsWrap = rootEl.querySelector('.dd-options');
+      var clearBtn = rootEl.querySelector('.dd-clear');
+      var options = [];
+
+      function getSelected() {
+        return Array.prototype.slice
+          .call(optionsWrap.querySelectorAll('input[type="checkbox"]:checked'))
+          .map(function (cb) { return cb.value; });
+      }
+      function updateFace() {
+        var sel = getSelected();
+        if (!sel.length) { valueSpan.textContent = 'Alle'; return; }
+        if (sel.length === 1) {
+          var opt = options.find(function (o) { return o.value === sel[0]; });
+          valueSpan.textContent = opt ? opt.label : sel[0];
+          return;
+        }
+        valueSpan.textContent = sel.length + ' ausgewählt';
+      }
+      optionsWrap.addEventListener('change', function (e) {
+        if (e.target && e.target.matches('input[type="checkbox"]')) {
+          updateFace();
+          if (opts.onChange) opts.onChange();
+        }
+      });
+      function setOptions(list) {
+        options = list;
+        optionsWrap.innerHTML = '';
+        list.forEach(function (o) {
+          var lbl = document.createElement('label');
+          lbl.className = 'dd-option';
+          var cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = o.value;
+          var span = document.createElement('span');
+          span.textContent = o.label;
+          lbl.appendChild(cb);
+          lbl.appendChild(span);
+          optionsWrap.appendChild(lbl);
+        });
+        updateFace();
+      }
+      function clear() {
+        optionsWrap.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+        updateFace();
+        if (opts.onChange) opts.onChange();
+      }
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeAllDropdowns(rootEl);
+        var isOpen = !panel.hidden;
+        panel.hidden = isOpen;
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+        rootEl.classList.toggle('open', !isOpen);
+      });
+      if (clearBtn) clearBtn.addEventListener('click', function (e) { e.stopPropagation(); clear(); });
+      panel.addEventListener('click', function (e) { e.stopPropagation(); });
+      var dd = {
+        root: rootEl,
+        getSelected: getSelected,
+        setOptions: setOptions,
+        clear: clear,
+        close: function () {
+          panel.hidden = true;
+          trigger.setAttribute('aria-expanded', 'false');
+          rootEl.classList.remove('open');
+        }
+      };
+      DROPDOWNS.push(dd);
+      return dd;
+    }
+    function closeAllDropdowns(except) {
+      DROPDOWNS.forEach(function (dd) { if (dd.root !== except) dd.close(); });
+    }
+    document.addEventListener('click', function () { closeAllDropdowns(null); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAllDropdowns(null); });
+
+    var searchInput = document.getElementById('global-search');
+    var ddYear = createDropdown(document.getElementById('dd-year'), { onChange: resetAndRender });
+    var ddSchool = createDropdown(document.getElementById('dd-school'), { onChange: resetAndRender });
+    var ddRole = createDropdown(document.getElementById('dd-role'), { onChange: resetAndRender });
+    var ddFlag = createDropdown(document.getElementById('dd-flag'), { onChange: resetAndRender });
+
+    /* ---------------- Pagination state ---------------- */
+    var PAGE_STATE = {
+      org: { size: 100, page: 1 },
+      klassen: { size: 100, page: 1 }
+    };
+
+    function currentFilters() {
+      return {
+        query: (searchInput.value || '').trim(),
+        years: ddYear.getSelected(),
+        schools: ddSchool.getSelected(),
+        roles: ddRole.getSelected(),
+        flags: ddFlag.getSelected()
+      };
+    }
+
+    function populateDataDropdowns() {
+      if (typeof MOCK_ROWS === 'undefined') return;
+      var yearMap = {};
+      MOCK_ROWS.forEach(function (r) {
+        if (r.assignment_year != null) yearMap[String(r.assignment_year)] = true;
+      });
+      ddYear.setOptions(Object.keys(yearMap).sort().reverse().map(function (y) {
+        return { value: y, label: y };
+      }));
+      var schoolMap = {};
+      MOCK_ROWS.forEach(function (r) { schoolMap[r.school_id] = true; });
+      ddSchool.setOptions(Object.keys(schoolMap).sort().map(function (id) {
+        var s = MOCK_SCHOOLS[id];
+        return { value: id, label: s ? id + ' — ' + s.name : id + ' — unbekannt' };
+      }));
+    }
+
+    /* ---------------- Render orchestration ---------------- */
+    var renderTimer = null;
+    function scheduleRender() {
+      if (renderTimer) clearTimeout(renderTimer);
+      renderTimer = setTimeout(rerender, 30);
+    }
+    function resetAndRender() {
+      PAGE_STATE.org.page = 1;
+      PAGE_STATE.klassen.page = 1;
+      scheduleRender();
+    }
+    function rerender() {
+      renderTimer = null;
+      if (typeof renderOrgTable !== 'function' || typeof renderKlassenTable !== 'function') {
+        console.error('render functions missing — check assets/app.js');
+        return;
+      }
+      var filters = currentFilters();
+      var orgRes = renderOrgTable(filters, PAGE_STATE.org);
+      PAGE_STATE.org.page = orgRes.page;
+      renderKlassenTable(filters, PAGE_STATE.klassen);
+
+      updatePaginationUi('org', orgRes.totalItems);
+      updatePaginationUi('klassen', orgRes.totalItems);
+
+      renderSchoolsTable();
+      document.getElementById('btn-validate').disabled = false;
+      document.getElementById('btn-export').disabled = false;
+      document.getElementById('chip-warn').textContent = orgRes.stats.warn + ' Warnungen';
+      document.getElementById('chip-error').textContent = orgRes.stats.error + ' Fehler';
+      document.getElementById('chip-generated').textContent = orgRes.stats.generated + ' generiert';
+      document.getElementById('chip-warn-2').textContent = orgRes.stats.warn + ' Warnungen';
+      document.getElementById('chip-error-2').textContent = orgRes.stats.error + ' Fehler';
+    }
+
+    function updatePaginationUi(which, totalItems) {
+      var state = PAGE_STATE[which];
+      var totalPages = Math.max(1, Math.ceil(totalItems / state.size));
+      if (state.page > totalPages) state.page = totalPages;
+
+      var bars = document.querySelectorAll('#table-area-' + which + ' .pagination-bar');
+      bars.forEach(function (bar) {
+        var info = bar.querySelector('.page-info');
+        var prev = bar.querySelector('.page-prev');
+        var next = bar.querySelector('.page-next');
+        var sizeSel = bar.querySelector('.page-size-select');
+        if (sizeSel && parseInt(sizeSel.value, 10) !== state.size) {
+          sizeSel.value = String(state.size);
+        }
+        info.textContent = 'Seite ' + state.page + ' von ' + totalPages + ' · ' + totalItems + ' Einträge';
+        prev.disabled = state.page <= 1;
+        next.disabled = state.page >= totalPages;
+      });
+    }
+
+    document.querySelectorAll('.page-size-select').forEach(function (sel) {
+      sel.addEventListener('change', function () {
+        var which = sel.dataset.table;
+        PAGE_STATE[which].size = parseInt(sel.value, 10) || 100;
+        PAGE_STATE[which].page = 1;
+        rerender();
+      });
+    });
+    document.querySelectorAll('.page-prev').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var which = btn.dataset.table;
+        if (PAGE_STATE[which].page > 1) {
+          PAGE_STATE[which].page -= 1;
+          rerender();
+        }
+      });
+    });
+    document.querySelectorAll('.page-next').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var which = btn.dataset.table;
+        PAGE_STATE[which].page += 1;
+        rerender();
+      });
+    });
+
+    searchInput.addEventListener('input', resetAndRender);
+
+    document.getElementById('btn-clear-filters').addEventListener('click', function () {
+      searchInput.value = '';
+      ddYear.clear();
+      ddSchool.clear();
+      ddRole.clear();
+      ddFlag.clear();
+      resetAndRender();
+    });
+
+    document.getElementById('btn-import').addEventListener('click', function () {
+      document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      var navBtn = document.querySelector('.nav-item[data-tab="import"]');
+      if (navBtn) navBtn.classList.add('active');
+      document.getElementById('tab-import').classList.add('active');
+    });
+
+    document.getElementById('btn-export').addEventListener('click', function () {
+      document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      var navBtn = document.querySelector('.nav-item[data-tab="import"]');
+      if (navBtn) navBtn.classList.add('active');
+      document.getElementById('tab-import').classList.add('active');
+      document.getElementById('export-card').hidden = false;
+    });
+
+    function toast(msg) {
+      var host = document.getElementById('toast-host');
+      var el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = msg;
+      host.appendChild(el);
+      setTimeout(function () { el.remove(); }, 2500);
+    }
+    window.toast = toast;
+
+    /* ---------------- Import screen ---------------- */
+    (function () {
+      var TARGET_FIELDS = [
+        { key: '',                 label: '— ignorieren —' },
+        { key: 'school_id',        label: 'Schul-ID',          detect: /schul.?id|school.?id|^sid$/i },
+        { key: 'first_name',       label: 'Vorname',           detect: /vorname|first/i },
+        { key: 'last_name',        label: 'Nachname',          detect: /nachname|last|family/i },
+        { key: 'birthday_display', label: 'Geburtsdatum',      detect: /geburts|birth|dob|^geb/i },
+        { key: 'role',             label: 'Rolle',             detect: /rolle|role/i },
+        { key: 'class_number',     label: 'Klassenstufe',      detect: /klasse.*stufe|class.*num/i },
+        { key: 'class_letter',     label: 'Klassenbuchstabe',  detect: /klasse.*buchst|class.*letter/i },
+        { key: 'username',         label: 'Benutzername',      detect: /benutzername|username|user.?name/i },
+        { key: 'apple_id',         label: 'Apple ID',          detect: /apple.?id/i },
+        { key: 'password',         label: 'Passwort',          detect: /passwort|password/i },
+        { key: 'lkid',             label: 'LKID',              detect: /^lkid$/i },
+        { key: 'applications',     label: 'Anwendungen',       detect: /anwendung|application/i },
+        { key: 'flags',            label: 'Flags',             detect: /^flags?$/i }
+      ];
+      var FIELD_BY_KEY = {};
+      TARGET_FIELDS.forEach(function (f) { if (f.key) FIELD_BY_KEY[f.key] = f; });
+
+      var CANONICAL_ROLES = [
+        { key: 'schueler', label: 'Schüler' },
+        { key: 'lehrer',   label: 'Lehrer' },
+        { key: 'sonstige', label: 'Sonstige' }
+      ];
+
+      var dropZone = document.getElementById('drop-zone');
+      var fileInput = document.getElementById('csv-input');
+      var mappingCard = document.getElementById('mapping-card');
+      var mappingBody = document.getElementById('mapping-body');
+      var roleMappingCard = document.getElementById('role-mapping-card');
+      var roleMappingBody = document.getElementById('role-mapping-body');
+      var exportCard = document.getElementById('export-card');
+      var previewCard = document.getElementById('preview-card');
+      var actions = document.getElementById('import-actions');
+      var headerToggle = document.getElementById('csv-has-header');
+
+      var previewTbody = document.querySelector('#table-import tbody');
+      var previewInfo = document.getElementById('import-page-info');
+      var previewPrev = document.getElementById('import-page-prev');
+      var previewNext = document.getElementById('import-page-next');
+
+      var parsed = null;
+      /* roleValueMap: raw CSV role string -> canonical role | '' (ignore) */
+      var roleValueMap = {};
+
+      /* Detect delimiter */
+      function detectDelimiter(text) {
+        var firstLine = '';
+        for (var i = 0; i < text.length; i++) {
+          if (text[i] === '\n') { firstLine = text.slice(0, i); break; }
+        }
+        if (!firstLine) firstLine = text;
+        var candidates = [',', ';', '\t'];
+        var counts = { ',': 0, ';': 0, '\t': 0 };
+        var inQ = false;
+        for (var j = 0; j < firstLine.length; j++) {
+          var c = firstLine[j];
+          if (c === '"') inQ = !inQ;
+          else if (!inQ && counts[c] != null) counts[c]++;
+        }
+        var best = ',';
+        var bestN = -1;
+        candidates.forEach(function (k) {
+          if (counts[k] > bestN) { bestN = counts[k]; best = k; }
+        });
+        return best;
+      }
+
+      function parseCsv(text) {
+        var delim = detectDelimiter(text);
+        var rows = [];
+        var row = [], field = '', inQ = false;
+        for (var i = 0; i < text.length; i++) {
+          var c = text[i];
+          if (inQ) {
+            if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+            else if (c === '"') inQ = false;
+            else field += c;
+          } else {
+            if (c === '"') inQ = true;
+            else if (c === delim) { row.push(field); field = ''; }
+            else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+            else if (c === '\r') { /* skip */ }
+            else field += c;
+          }
+        }
+        if (field.length || row.length) { row.push(field); rows.push(row); }
+        rows = rows.filter(function (r) {
+          return r.some(function (v) { return String(v).length > 0; });
+        });
+
+        var maxW = 0;
+        rows.forEach(function (r) { if (r.length > maxW) maxW = r.length; });
+        var ragged = rows.some(function (r) { return r.length < maxW; });
+        if (ragged) {
+          rows = rows.map(function (r) {
+            while (r.length < maxW) r.push('');
+            return r;
+          });
+          if (typeof toast === 'function') {
+            toast('Datei enthält Zeilen mit unterschiedlicher Spaltenzahl — ' +
+                  'kurze Zeilen wurden mit leeren Werten aufgefüllt.');
+          }
+        }
+        return rows;
+      }
+
+      function columnLabels() {
+        if (!parsed) return [];
+        if (parsed.hasHeader && parsed.rawRows.length) {
+          return parsed.rawRows[0].map(function (v, i) {
+            var s = String(v || '').trim();
+            return s || ('Spalte ' + (i + 1));
+          });
+        }
+        var width = parsed.rawRows.reduce(function (w, r) {
+          return Math.max(w, r.length);
+        }, 0);
+        var labels = [];
+        for (var i = 0; i < width; i++) labels.push('Spalte ' + (i + 1));
+        return labels;
+      }
+
+      function dataRows() {
+        if (!parsed) return [];
+        return parsed.hasHeader ? parsed.rawRows.slice(1) : parsed.rawRows;
+      }
+
+      function autoDetect(header) {
+        var name = String(header || '').trim();
+        if (!name) return '';
+        for (var i = 0; i < TARGET_FIELDS.length; i++) {
+          var f = TARGET_FIELDS[i];
+          if (f.detect && f.detect.test(name)) return f.key;
+        }
+        return '';
+      }
+
+      function handleFile(file) {
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          var rows = parseCsv(String(reader.result || ''));
+          if (!rows.length) { toast('Leere Datei.'); return; }
+          parsed = { rawRows: rows, hasHeader: headerToggle.checked };
+          roleValueMap = {};
+          rebuildAll(true);
+          mappingCard.hidden = false;
+          exportCard.hidden = false;
+          previewCard.hidden = false;
+          actions.hidden = false;
+        };
+        reader.readAsText(file);
+      }
+
+      function rebuildAll(resetMapping) {
+        var labels = columnLabels();
+        var prevValues = resetMapping ? null : readCurrentMapping();
+
+        mappingBody.innerHTML = '';
+        var usedFields = {};
+
+        labels.forEach(function (label, idx) {
+          var detected = resetMapping ? autoDetect(label) : '';
+          if (detected && usedFields[detected]) detected = '';
+
+          var tr = document.createElement('tr');
+          var tdName = document.createElement('td');
+          tdName.textContent = label;
+          if (detected) {
+            var badge = document.createElement('span');
+            badge.className = 'detected-badge auto';
+            badge.textContent = 'erkannt';
+            tdName.appendChild(badge);
+          }
+          var tdSel = document.createElement('td');
+          var sel = document.createElement('select');
+          sel.dataset.index = String(idx);
+          TARGET_FIELDS.forEach(function (f) {
+            var opt = document.createElement('option');
+            opt.value = f.key;
+            opt.textContent = f.label;
+            if (resetMapping) {
+              if (f.key === detected) opt.selected = true;
+            } else {
+              if (prevValues && prevValues[idx] === f.key) opt.selected = true;
+            }
+            sel.appendChild(opt);
+          });
+          tdSel.appendChild(sel);
+          tr.appendChild(tdName);
+          tr.appendChild(tdSel);
+          mappingBody.appendChild(tr);
+
+          if (detected) usedFields[detected] = true;
+        });
+
+        mappingBody.querySelectorAll('select').forEach(function (sel) {
+          sel.addEventListener('change', function () { onMappingChanged(sel); });
+        });
+
+        rebuildRoleMapping();
+        rebuildPreview();
+      }
+
+      function onMappingChanged(changedSel) {
+        var chosen = changedSel.value;
+        if (chosen) {
+          mappingBody.querySelectorAll('select').forEach(function (other) {
+            if (other === changedSel) return;
+            if (other.value === chosen) {
+              other.value = '';
+              var idx = parseInt(other.dataset.index, 10) + 1;
+              toast(FIELD_BY_KEY[chosen].label + ' war bereits Spalte ' + idx +
+                    ' zugeordnet — Zuordnung dort entfernt.');
+            }
+          });
+        }
+        rebuildRoleMapping();
+        rebuildPreview();
+      }
+
+      function readCurrentMapping() {
+        var out = {};
+        mappingBody.querySelectorAll('select').forEach(function (sel) {
+          out[parseInt(sel.dataset.index, 10)] = sel.value;
+        });
+        return out;
+      }
+
+      function buildColumnMap() {
+        var map = {};
+        mappingBody.querySelectorAll('select').forEach(function (sel) {
+          if (!sel.value) return;
+          map[sel.value] = parseInt(sel.dataset.index, 10);
+        });
+        return map;
+      }
+
+      /* Discover distinct raw role values in the currently-mapped role column.
+       * For each raw value, auto-detect the canonical role from the alias
+       * registry. Keep existing user overrides where possible. */
+      function rebuildRoleMapping() {
+        var map = buildColumnMap();
+        var roleIdx = map.role;
+        if (roleIdx == null) {
+          roleMappingCard.hidden = true;
+          roleMappingBody.innerHTML = '';
+          return;
+        }
+
+        var seen = {};
+        var distinct = [];
+        dataRows().forEach(function (r) {
+          var raw = String(r[roleIdx] == null ? '' : r[roleIdx]);
+          /* Split on commas so each individual value appears on its own row. */
+          var parts = raw.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+          if (!parts.length) parts = [raw];
+          parts.forEach(function (p) {
+            if (!seen[p]) { seen[p] = true; distinct.push(p); }
+          });
+        });
+        distinct.sort(function (a, b) {
+          return a.localeCompare(b, 'de', { sensitivity: 'base' });
+        });
+
+        /* Preserve overrides; auto-detect the rest. */
+        var nextMap = {};
+        distinct.forEach(function (raw) {
+          if (roleValueMap.hasOwnProperty(raw)) {
+            nextMap[raw] = roleValueMap[raw];
+          } else {
+            var auto = normalizeRole(raw);
+            nextMap[raw] = auto || '';
+          }
+        });
+        roleValueMap = nextMap;
+
+        roleMappingBody.innerHTML = '';
+        distinct.forEach(function (raw) {
+          var tr = document.createElement('tr');
+          var tdName = document.createElement('td');
+          tdName.textContent = raw || '(leer)';
+
+          var autoKey = normalizeRole(raw);
+          if (autoKey && roleValueMap[raw] === autoKey) {
+            var badge = document.createElement('span');
+            badge.className = 'detected-badge auto';
+            badge.textContent = 'erkannt';
+            tdName.appendChild(badge);
+          }
+
+          var tdSel = document.createElement('td');
+          var sel = document.createElement('select');
+          sel.dataset.raw = raw;
+          var optIgnore = document.createElement('option');
+          optIgnore.value = '';
+          optIgnore.textContent = '— ignorieren (→ Sonstige) —';
+          if (roleValueMap[raw] === '') optIgnore.selected = true;
+          sel.appendChild(optIgnore);
+
+          CANONICAL_ROLES.forEach(function (cr) {
+            var opt = document.createElement('option');
+            opt.value = cr.key;
+            opt.textContent = cr.label;
+            if (roleValueMap[raw] === cr.key) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener('change', function () {
+            roleValueMap[raw] = sel.value;
+            rebuildPreview();
+          });
+          tdSel.appendChild(sel);
+          tr.appendChild(tdName);
+          tr.appendChild(tdSel);
+          roleMappingBody.appendChild(tr);
+        });
+
+        roleMappingCard.hidden = distinct.length === 0;
+      }
+
+      /* Split class cell into number + letter. Accepts '3a', '3 a',
+       * '03/A', '7b', '10', '12c'. */
+      function splitClassCell(raw) {
+        if (raw == null) return { number: null, letter: '' };
+        var s = String(raw).trim();
+        if (!s) return { number: null, letter: '' };
+        var m = s.match(/^(\d+)\s*[\/\s-]?\s*([A-Za-z]{0,3})$/);
+        if (!m) return { number: null, letter: '' };
+        var n = parseInt(m[1], 10);
+        if (isNaN(n)) return { number: null, letter: '' };
+        return { number: n, letter: (m[2] || '').toLowerCase() };
+      }
+
+      function splitArrayCellLocal(raw) {
+        if (raw == null) return [];
+        var str = String(raw).trim();
+        if (!str) return [];
+        return str.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      }
+
+      function projectRow(csvRow, map) {
+        function get(key) {
+          var i = map[key];
+          return i != null ? csvRow[i] : '';
+        }
+
+        /* --- role --- */
+        var roles = ['sonstige'];
+        var roleRaw = String(get('role') || '').trim();
+        if (roleRaw) {
+          var parts = roleRaw.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+          var collected = [];
+          parts.forEach(function (part) {
+            var mapped = roleValueMap.hasOwnProperty(part)
+              ? roleValueMap[part]
+              : (normalizeRole(part) || '');
+            if (mapped && collected.indexOf(mapped) === -1) collected.push(mapped);
+          });
+          if (collected.length) roles = collected;
+          else {
+            /* Fall back to the whole-cell parser. */
+            roles = parseRoles(roleRaw);
+          }
+        }
+
+        /* --- classes --- */
+        var classNumber = null;
+        var classLetter = '';
+        if (map.class_number != null) {
+          var split = splitClassCell(get('class_number'));
+          classNumber = split.number;
+          classLetter = split.letter;
+        }
+        if (map.class_letter != null) {
+          var manualLetter = String(get('class_letter') || '').trim().toLowerCase();
+          if (manualLetter) classLetter = manualLetter;
+        }
+
+        var apps = splitArrayCellLocal(get('applications'));
+        var flags = splitArrayCellLocal(get('flags'));
+
+        return {
+          school_id: String(get('school_id') || '').trim(),
+          first_name: String(get('first_name') || ''),
+          last_name: String(get('last_name') || ''),
+          birthday_display: String(get('birthday_display') || ''),
+          username: String(get('username') || ''),
+          apple_id: String(get('apple_id') || ''),
+          password: String(get('password') || ''),
+          lkid: String(get('lkid') || ''),
+          class_number: classNumber,
+          class_letter: classLetter,
+          assignment_year: new Date().getFullYear(),
+          roles: roles,
+          applications: apps,
+          flags: flags,
+          autoFilled: []
+        };
+      }
+
+      function projectedRows() {
+        if (!parsed) return [];
+        var map = buildColumnMap();
+        return dataRows().map(function (csvRow) { return projectRow(csvRow, map); });
+      }
+
+      function rebuildPreview() {
+        if (!parsed) {
+          previewTbody.innerHTML = '';
+          previewInfo.textContent = 'Seite 1 von 1 · 0 Einträge';
+          previewPrev.disabled = true;
+          previewNext.disabled = true;
+          return;
+        }
+        var rows = projectedRows();
+        var index = buildImportIndex(rows);
+        renderImportedTable(previewTbody, previewInfo, previewPrev, previewNext, rows, index);
+      }
+
+      previewPrev.addEventListener('click', function () {
+        if (IMPORT_PAGE_STATE.page > 1) {
+          IMPORT_PAGE_STATE.page -= 1;
+          rebuildPreview();
+        }
+      });
+      previewNext.addEventListener('click', function () {
+        IMPORT_PAGE_STATE.page += 1;
+        rebuildPreview();
+      });
+
+      function applyImport() {
+        var map = buildColumnMap();
+        if (!Object.keys(map).length) {
+          toast('Bitte mindestens eine Spalte einem Zielfeld zuordnen.');
+          return;
+        }
+        if (!map.school_id && !map.first_name && !map.last_name) {
+          toast('Mindestens Schul-ID, Vorname oder Nachname muss zugeordnet sein.');
+          return;
+        }
+        var newRows = projectedRows();
+        if (window.MOCK_ROWS) {
+          Array.prototype.push.apply(window.MOCK_ROWS, newRows);
+        }
+        toast(newRows.length + ' Zeilen importiert.');
+        mappingCard.hidden = roleMappingCard.hidden = exportCard.hidden = previewCard.hidden = actions.hidden = true;
+        parsed = null;
+        roleValueMap = {};
+        IMPORT_PAGE_STATE.page = 1;
+        if (typeof populateDataDropdowns === 'function') populateDataDropdowns();
+        if (typeof resetAndRender === 'function') resetAndRender();
+      }
+
+      fileInput.addEventListener('change', function () { handleFile(fileInput.files[0]); });
+      dropZone.addEventListener('click', function () { fileInput.click(); });
+      dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+      dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
+      dropZone.addEventListener('drop', function (e) {
+        e.preventDefault(); dropZone.classList.remove('drag-over');
+        handleFile(e.dataTransfer.files[0]);
+      });
+
+      headerToggle.addEventListener('change', function () {
+        if (!parsed) return;
+        parsed.hasHeader = headerToggle.checked;
+        rebuildAll(false);
+      });
+
+      document.getElementById('btn-auto-map').addEventListener('click', function () {
+        if (!parsed) return;
+        rebuildAll(true);
+        toast('Automatische Zuordnung angewendet.');
+      });
+
+      document.getElementById('btn-clear-map').addEventListener('click', function () {
+        mappingBody.querySelectorAll('select').forEach(function (sel) { sel.value = ''; });
+        roleValueMap = {};
+        rebuildRoleMapping();
+        rebuildPreview();
+      });
+
+      document.getElementById('btn-import-cancel').addEventListener('click', function () {
+        mappingCard.hidden = roleMappingCard.hidden = exportCard.hidden = previewCard.hidden = actions.hidden = true;
+        parsed = null;
+        roleValueMap = {};
+        IMPORT_PAGE_STATE.page = 1;
+      });
+      document.getElementById('btn-import-confirm').addEventListener('click', applyImport);
+    })();
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof renderOrgTable !== 'function' || typeof window.MOCK_ROWS === 'undefined') {
+        var msg = 'Mock-Daten konnten nicht geladen werden. Prüfen Sie assets/mock-data.js und assets/app.js.';
+        var emptyOrg = document.getElementById('empty-state-org');
+        if (emptyOrg) emptyOrg.innerHTML = '<p class="missing-error">' + msg + '</p>';
+        var emptyKl = document.getElementById('empty-state-klassen');
+        if (emptyKl) emptyKl.innerHTML = '<p class="missing-error">' + msg + '</p>';
+        return;
+      }
+      populateDataDropdowns();
+      rerender();
+    });
+  </script>
+</body>
+</html>
