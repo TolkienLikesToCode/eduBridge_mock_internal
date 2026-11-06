@@ -1,0 +1,24 @@
+School ID;First Name;Family Name;Role;Grade;Section
+10001;Anna;Müller;Schüler;3;a
+10001;Ben;Schröder;Schueler;4;b
+10001;Clara;Weiß;SCHÜLER;2;a
+20001;David;Yılmaz;Student;6;c
+20001;Emma;Jäger;Pupil;6;a
+20001;Felix;Öztürk;Teacher;;;
+60001;Greta;Krüger;Lehrerin;9;b
+60001;Hannah;Çelik;lehr;;;
+60001;Ida;Fröhlich;lehrkraft;;;
+10001;Jonas;Groß;Sonstige;3;c
+10001;Klara;Meyer;Staff;;;
+20001;Lukas;Wolf;Verwaltung;;;
+20001;Mia;Neumann;Referendarin;;;
+60001;Noah;Schwarz;Praktikant;;;
+60001;Olivia;Braun;Extern;;;
+10001;Paul;Klein;Schüler;4;a
+10001;Quirin;Richter;schülerin;4;b
+20001;Rosa;Hofmann;Students;5;a
+60001;Samuel;Zimmermann;Teachers;;;
+60001;Theresa;Hartmann;Other;;;
+10001;Ulf;Wagner;sch;2;c
+10001;Vera;Becker;l;;;
+20001;Wilhelm;Schulz;sonst;;;

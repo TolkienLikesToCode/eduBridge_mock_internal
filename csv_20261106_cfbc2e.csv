@@ -1,0 +1,11 @@
+Schul-ID;Vorname;Nachname;Geburtsdatum;Rolle;Klassenstufe;Klassenbuchstabe;Benutzername;Apple ID;Passwort;LKID;Anwendungen;Flags
+10001;Änne;Möller;05.05.2013;schueler;2;b;aenmoel24;aenmoel24@appleid.lra-greiz.de;honigzucker;10001-2024-00011;M365;can_login
+10001;Ömer;Şahin;12.12.2011;schueler;4;a;oemsah24;oemsah24@appleid.lra-greiz.de;katzehund;10001-2024-00012;M365;can_login
+20001;Søren;André;23.03.1982;lehrer;;;soeandr24;soeandr24@appleid.lra-greiz.de;Bj7!nH4$pQ;20001-2024-00013;M365;Schulportal;MDM;can_login
+20001;Renée;Céline;09.09.2010;schueler;7;c;renceli24;renceli24@appleid.lra-greiz.de;mausente;20001-2024-00014;M365;Nextcloud;can_login;external
+60001;Karl-Heinz;Groß;30.06.1978;lehrer;;;kargros24;kargros24@appleid.lra-greiz.de;Wm2@tK9#rL;60001-2024-00015;M365;Schulportal;MDM;can_login
+60001;Jörg;Krämer;14.02.2009;schueler;10;b;joekrae24;joekrae24@appleid.lra-greiz.de;pferdziege;60001-2024-00016;M365;can_login
+99999;Unbekannt;Niemand;01.01.2010;schueler;5;a;unnniem24;unnniem24@appleid.lra-greiz.de;testtest;99999-2024-00017;M365;can_login
+20001;Weiß;Weiß;28.07.2011;schueler;6;a;weiweiss24;weiweiss24@appleid.lra-greiz.de;lichtfarbe;20001-2024-00018;M365;can_login
+10001;Jörg;Müller;15.15.2012;schueler;3;c;joemuell24;joemuell24@appleid.lra-greiz.de;erdewasser;10001-2024-00019;M365;can_login
+60001;;Fröhlich;20.10.2009;schueler;9;a;frfr24;frfr24@appleid.lra-greiz.de;luftsalz;60001-2024-00020;M365;can_login

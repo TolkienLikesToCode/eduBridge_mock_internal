@@ -1,0 +1,11 @@
+Schul-ID;Vorname;Nachname;Geburtsdatum;Rolle;Klassenstufe;Klassenbuchstabe;Benutzername;Apple ID;Passwort;LKID;Anwendungen;Flags
+10001;Anna;Müller;14.03.2012;schueler;3;a;annmue24;annmue24@appleid.lra-greiz.de;sonnewolke;10001-2024-00001;M365,Schulportal;can_login
+10001;Ben;Schröder;02.11.2011;schueler;4;b;benscr24;benscr24@appleid.lra-greiz.de;hasefuchs;10001-2024-00002;M365;can_login
+10001;Clara;Weiß;19.07.2013;schueler;2;a;clawai24;clawai24@appleid.lra-greiz.de;blumemond;10001-2024-00003;M365,Nextcloud;can_login
+10001;David;Yılmaz;08.05.1980;lehrer;;;davyil24;davyil24@appleid.lra-greiz.de;Xk9#mP2!qL;10001-2024-00004;M365,Schulportal,MDM;can_login
+20001;Emma;Jäger;22.09.2010;schueler;6;c;emmjaeg24;emmjaeg24@appleid.lra-greiz.de;wolkeapfel;20001-2024-00005;M365;can_login,needs_password_reset
+20001;Felix;Öztürk;30.01.1979;lehrer;;;feloet24;feloet24@appleid.lra-greiz.de;Rk4$nB8@wQ;20001-2024-00006;M365,Schulportal,MDM,Nextcloud;can_login
+20001;Greta;Krüger;11.12.2011;schueler;7;a;grekrue24;grekrue24@appleid.lra-greiz.de;sternregen;20001-2024-00007;M365,Schulportal;can_login
+60001;Hannah;Çelik;04.06.2009;schueler;9;b;hancel24;hancel24@appleid.lra-greiz.de;wiesemond;60001-2024-00008;M365,MDM;can_login
+60001;Ida;Fröhlich;17.08.1985;lehrer;;;idafroe24;idafroe24@appleid.lra-greiz.de;Tz7!kR3#vN;60001-2024-00009;M365,Schulportal,MDM;can_login
+60001;Jonas;Groß;25.02.2009;schueler;10;a;jongros24;jongros24@appleid.lra-greiz.de;feuerwasser;60001-2024-00010;M365;can_login
